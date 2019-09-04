@@ -54,6 +54,6 @@ public class DataRetrievalTests {
 	public void retrieveFundsTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
 		test_retrieval_instance.targetUser(0);
-		assertEquals(test_retrieval_instance.getFunds(), "255");
+		assertEquals(test_retrieval_instance.getFunds(), "255.00");
 	}
 }
