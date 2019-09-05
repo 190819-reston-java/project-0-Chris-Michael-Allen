@@ -1,4 +1,4 @@
-package repositoryLayerTests;
+package serviceLayerTests;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
-import com.revature.repository.RetrievalLayer;
+import com.revature.service.RetrievalLayer;
 
 public class DataSubmissionTests {
 
@@ -20,11 +20,13 @@ public class DataSubmissionTests {
 	// Create and Retrieve User Test
 		// Should instantiate a new user in the database, then
 		// retrieve that same user
+	
+
 	@Test
 	public void createAndRetrieveUserTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.addUser("Jimmy Schmittz");
-		test_retrieval_instance.targetUser(2);
+		test_retrieval_instance.addUser("customUser", "Jimmy Schmittz");
+		test_retrieval_instance.targetUser("customUser");
 		assertEquals(test_retrieval_instance.getName(), "Jimmy Schmittz");
 	}
 	
@@ -34,7 +36,7 @@ public class DataSubmissionTests {
 	@Test (expected = NumberFormatException.class)
 	public void validInputTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.addUser("Good Name", "Not a Good Number");
+		test_retrieval_instance.addUser("Good Username", "Good Name", "Bad Funds");
 	}
 
 	// Valid Funds Minimum Zero Test
@@ -43,7 +45,7 @@ public class DataSubmissionTests {
 	@Test (expected = InitializedFundsBelowZeroException.class)
 		public void validFundsMinimumZeroTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.addUser("Less than Enough Money", "-300");
+		test_retrieval_instance.addUser("Shouldn't be okay if there's", "Less than Enough Money", "-300");
 	}
 	
 	// Valid Funds Below Maximum Test
@@ -52,7 +54,7 @@ public class DataSubmissionTests {
 	@Test (expected = FundsTooHighException.class)
 	public void fundsBelowMaximumTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.addUser("Way too much money", "10000000000");
+		test_retrieval_instance.addUser("This User Has", "Way too much money", "10000000000");
 	}
 	
 	// Increase Funds Test
@@ -61,7 +63,7 @@ public class DataSubmissionTests {
 	@Test
 	public void depositMoneyTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.targetUser(1);
+		test_retrieval_instance.targetUser("testAccount2");
 		test_retrieval_instance.addFunds(200);
 		assertEquals(test_retrieval_instance.getFunds(), "300.00");
 	}
@@ -73,7 +75,7 @@ public class DataSubmissionTests {
 	@Test
 	public void validFundsFormatTest() {
 		RetrievalLayer test_retrieval_instance = new RetrievalLayer();
-		test_retrieval_instance.targetUser(0);
+		test_retrieval_instance.targetUser("testAccountName");
 		test_retrieval_instance.addFunds(200.12345678);
 		assertEquals(test_retrieval_instance.getFunds(), "455.12");
 	}
