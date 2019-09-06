@@ -6,6 +6,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
 import com.revature.service.RetrievalLayer;
@@ -42,6 +43,14 @@ public class DataSubmissionTests {
 		assertEquals(test_retrieval_instance.getName(), "Jimmy Schmittz");
 	}
 
+	// No Duplicate Users Test
+	// Should result in an error message if the user attempts to
+	// Create a duplicate user
+	@Test (expected = DuplicateUserException.class)
+	public void noDuplicateUsersTest() {
+		test_retrieval_instance.addUser("testAccountName", "This account already exists");
+	}
+	
 	// Valid Input Test
 	// Should ensure that the data input to the repository
 	// is in a valid format

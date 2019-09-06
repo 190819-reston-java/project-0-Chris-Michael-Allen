@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.revature.exception.KeyNotFoundException;
 import com.revature.exception.NoUserTargetedException;
+import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
 
@@ -83,7 +84,8 @@ public class RetrievalLayer {
 	}
 
 	public void addUser(String user_name, String actual_name, String funds)
-			throws NumberFormatException, InitializedFundsBelowZeroException, FundsTooHighException {
+			throws NumberFormatException, InitializedFundsBelowZeroException, FundsTooHighException,
+			DuplicateUserException {
 
 		// Program will crash if value is not castable
 		// As a float
@@ -97,7 +99,9 @@ public class RetrievalLayer {
 
 		// Set the new user's key within the table to be
 		// The size of the map
-
+		if(this.user_data.containsKey(user_name)) {
+			throw new DuplicateUserException();
+		}
 		this.user_data.put(user_name, Arrays.asList(user_name, actual_name, funds));
 	}
 

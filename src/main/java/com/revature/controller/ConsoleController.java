@@ -3,6 +3,8 @@ package com.revature.controller;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import com.revature.exception.DuplicateUserException;
+import com.revature.exception.KeyNotFoundException;
 import com.revature.service.RetrievalLayer;
 
 public class ConsoleController {
@@ -40,6 +42,9 @@ public class ConsoleController {
 	private Scanner user_input_control = new Scanner(System.in);
 	private boolean loop_execution = true;
 	
+	private String display_name;
+	private String user_retrieval_key;
+	
 	public ConsoleController() {
 		this.runMainMenu();
 	}
@@ -64,12 +69,15 @@ public class ConsoleController {
 		switch (menu_case) {
 		case 0:
 			System.out.println("View account balance!");
+			doViewAccountBalance();
 			break;
 		case 1:
 			System.out.println("Deposit funds!");
+			doDepositFunds();
 			break;
 		case 2:
 			System.out.println("Withdraw funds!");
+			doWithdrawFunds();
 			break;
 		case 3:
 			System.out.println("View transaction history!");
@@ -79,12 +87,15 @@ public class ConsoleController {
 			break;
 		case 5:
 			System.out.println("Log out!");
+			doLogOut();
 			break;
 		case 6:
 			System.out.println("Create account!");
+			doCreateAccount();
 			break;
 		case 7:
 			System.out.println("Log in!");
+			doLogIn();
 			break;
 		case 8:
 			System.out.println("Save and exit!");
@@ -92,6 +103,130 @@ public class ConsoleController {
 			break;
 		}
 		
+	}
+
+	private void doLogOut() {
+		System.out.print("Are you sure you would like to exit this menu? Type 'EXIT' to logout. "
+				+ "Enter anything else to stay logged in: ");
+		
+		String user_input = this.user_input_control.nextLine();
+		
+		if(!user_input.equals("EXIT")) {
+			return;
+		}
+		
+		this.service_handler.logOut();
+		this.setDisplayName("");
+		this.setRetrievalKey("");
+	}
+
+	private void doWithdrawFunds() {
+	}
+
+	private void doViewAccountBalance() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void doLogIn() {
+		System.out.print("Please enter the name of the account you wish to log in to (Enter 'EXIT' to exit): ");
+		String user_to_find = this.user_input_control.nextLine();
+		
+		if(user_to_find.equals("EXIT")) {
+			return;
+		}
+		
+		try {
+		service_handler.targetUser(user_to_find);
+		}
+		catch (KeyNotFoundException e) {
+			System.out.println("This user is not in the database! Perhaps you meant to register this account?");
+			this.doLogIn();
+			return;
+		}
+		
+		this.setDisplayName(service_handler.getName());
+		this.setRetrievalKey(service_handler.getUserName());
+		return;
+	}
+
+	private void doDepositFunds() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void doCreateAccount() {
+		System.out.print("Please enter the username of the account you would like to create. "
+				+ "A username may consist of:\n"
+				+ "Upper/Lower case letters\n"
+				+ "Numbers 0-9\n"
+				+ "Underscores\n"
+				+ "Type 'EXIT' to exit: ");
+		
+		String new_name = this.user_input_control.nextLine();
+		
+		if(new_name.equals("EXIT")) {
+			return;
+		}
+		
+		String validated_name = new_name.replaceAll("[^0-9a-zA-Z_]", "");
+		if (new_name.length() != validated_name.length()) {
+			System.out.println("Invalid name! Please try again");
+			this.doCreateAccount();
+			return;
+		}
+		
+		System.out.print("Please enter the real name to be associated with this account. Type 'EXIT'"
+				+ "to exit.\nNote: Illegal characters will be stripped from your name: ");
+		String actual_name = this.user_input_control.nextLine();
+		
+		if(actual_name.equals("EXIT")) {
+			return;
+		}
+		
+		String validated_actual_name = actual_name.replaceAll("[^0-9a-zA-Z_ ]", "");
+		
+		System.out.println("User name: " + validated_name);
+		System.out.println("Display name: " + validated_actual_name);
+		
+		System.out.println("Are these settings okay? Enter 'EXIT' to cancel registration attempt, and "
+				+ "any other entry to confirm: ");
+		
+		String final_confirm = this.user_input_control.nextLine();
+		
+		if(final_confirm.equals("EXIT")) {
+			return;
+		}
+		
+		try {
+			this.service_handler.addUser(validated_name, validated_actual_name);
+		}
+		catch (DuplicateUserException e) {
+			System.out.println("There is already a user with that username!");
+			return;
+		}
+		
+		this.service_handler.targetUser(validated_name);
+		this.setDisplayName(service_handler.getName());
+		this.setRetrievalKey(service_handler.getUserName());
+		return;
+		
+	}
+	
+	private String getDisplayName() {
+		return this.display_name;
+	}
+	
+	private String getRetrievalKey() {
+		return this.user_retrieval_key;
+	}
+	
+	private void setDisplayName(String display_name) {
+		this.display_name = display_name;
+	}
+	
+	private void setRetrievalKey(String retrieval_key) {
+		this.user_retrieval_key = retrieval_key;
 	}
 
 	private int menuSelection(String[][] menu_to_show) {
@@ -127,7 +262,7 @@ public class ConsoleController {
 		
 		converted_user_selection = Integer.valueOf(menu_to_show[converted_user_selection - 1][1]);
 		
-		if (converted_user_selection < 1) {
+		if (converted_user_selection < 0) {
 			System.out.println("Invalid menu option! Please choose a valid option");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
