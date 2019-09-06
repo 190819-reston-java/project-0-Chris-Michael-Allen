@@ -6,9 +6,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
+import com.revature.exception.NoUserTargetedException;
 import com.revature.service.RetrievalLayer;
 
 public class DataSubmissionTests {
@@ -94,5 +96,30 @@ public class DataSubmissionTests {
 		test_retrieval_instance.targetUser("testAccountName");
 		test_retrieval_instance.addFunds(200.12345678);
 		assertEquals(test_retrieval_instance.getFunds(), "455.12");
+	}
+	
+	// Withdraw Funds Test
+	// Should ensure the accuracy of the withdrawal function
+	
+	@Test
+	public void withdrawalFunctionalityTest() {
+		test_retrieval_instance.targetUser("testAccountName");
+		test_retrieval_instance.withdrawFunds(255);
+		assertEquals(test_retrieval_instance.getFunds(), "0.00");
+	}
+	
+	// Valid Withdrawal Request Test
+	// Should ensure that a user can only withdraw if they are logged in
+	@Test (expected = NoUserTargetedException.class)
+	public void validWithdrawalConditionsTest() {
+		test_retrieval_instance.withdrawFunds(255);
+	}
+	
+	// No Overdraw Test
+	// Should ensure that a user can not withdraw more money than is in their account
+	@Test (expected = AccountOverdrawnException.class)
+	public void noOverdrawAllowedTest() {
+		test_retrieval_instance.targetUser("testAccountName");
+		test_retrieval_instance.withdrawFunds(1000);
 	}
 }

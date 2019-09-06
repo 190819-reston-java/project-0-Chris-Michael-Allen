@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.revature.exception.KeyNotFoundException;
 import com.revature.exception.NoUserTargetedException;
+import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
@@ -80,7 +81,7 @@ public class RetrievalLayer {
 		if (!targeting_user) {
 			throw new NoUserTargetedException();
 		}
-		this.user_funds = user_funds;
+		this.user_funds = String.format("%.2f", Float.valueOf(user_funds));
 	}
 
 	public void addUser(String user_name, String actual_name, String funds)
@@ -117,7 +118,7 @@ public class RetrievalLayer {
 
 		float new_value = increment_amount + Float.valueOf(this.getFunds());
 
-		this.setFunds(String.format("%.2f", new_value));
+		this.setFunds(new_value);
 
 		List<String> update_data = Arrays.asList(this.getName(), this.getFunds());
 		this.user_data.replace(this.user_name, update_data);
@@ -142,5 +143,32 @@ public class RetrievalLayer {
 
 	public boolean getLoggedInStatus() {
 		return this.targeting_user;
+	}
+
+	public void withdrawFunds(float withdraw_amount) 
+	throws NoUserTargetedException, AccountOverdrawnException {
+		
+		if(!this.targeting_user) {
+			throw new NoUserTargetedException();
+		}
+		
+		float new_amount = Float.valueOf(this.getFunds()) - withdraw_amount;
+		if (new_amount < 0) {
+			throw new AccountOverdrawnException();
+		}
+		
+		this.setFunds(new_amount);
+		List<String> update_array = Arrays.asList(this.getName(), this.getFunds());
+		this.user_data.replace(this.user_name, update_array);
+	}
+	
+	private void setFunds(float f) {
+		this.setFunds(String.valueOf(f));
+		
+	}
+
+	public void withdrawFunds(int i) {
+		this.withdrawFunds((float) i);
+		
 	}
 }
