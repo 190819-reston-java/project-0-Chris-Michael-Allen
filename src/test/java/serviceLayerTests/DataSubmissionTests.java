@@ -40,7 +40,7 @@ public class DataSubmissionTests {
 
 	@Test
 	public void createAndRetrieveUserTest() {
-		test_retrieval_instance.addUser("customUser", "Jimmy Schmittz");
+		test_retrieval_instance.addUser("customUser", "Jimmy Schmittz", "passwordFiller");
 		test_retrieval_instance.targetUser("customUser");
 		assertEquals(test_retrieval_instance.getName(), "Jimmy Schmittz");
 	}
@@ -50,7 +50,7 @@ public class DataSubmissionTests {
 	// Create a duplicate user
 	@Test (expected = DuplicateUserException.class)
 	public void noDuplicateUsersTest() {
-		test_retrieval_instance.addUser("testAccountName", "This account already exists");
+		test_retrieval_instance.addUser("testAccountName", "This account already exists", "Passworddoesntmatter");
 	}
 	
 	// Valid Input Test
@@ -58,7 +58,7 @@ public class DataSubmissionTests {
 	// is in a valid format
 	@Test(expected = NumberFormatException.class)
 	public void validInputTest() {
-		test_retrieval_instance.addUser("Good Username", "Good Name", "Bad Funds");
+		test_retrieval_instance.addUser("Good Username", "Good Name", "Bad Funds", "Good Password");
 	}
 
 	// Valid Funds Minimum Zero Test
@@ -66,7 +66,7 @@ public class DataSubmissionTests {
 	// An error to the user
 	@Test(expected = InitializedFundsBelowZeroException.class)
 	public void validFundsMinimumZeroTest() {
-		test_retrieval_instance.addUser("Shouldn't be okay if there's", "Less than Enough Money", "-300");
+		test_retrieval_instance.addUser("Shouldn't be okay if there's", "Less than Enough Money", "-300", "Evenwithagoodpassword");
 	}
 
 	// Valid Funds Below Maximum Test
@@ -74,7 +74,7 @@ public class DataSubmissionTests {
 	// Above an arbitrary maximum
 	@Test(expected = FundsTooHighException.class)
 	public void fundsBelowMaximumTest() {
-		test_retrieval_instance.addUser("This User Has", "Way too much money", "10000000000");
+		test_retrieval_instance.addUser("This User Has", "Way too much money", "10000000000", "password to make JUnit happy");
 	}
 
 	// Increase Funds Test

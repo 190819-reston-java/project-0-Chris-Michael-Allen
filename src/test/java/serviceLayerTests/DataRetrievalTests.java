@@ -1,5 +1,6 @@
 package serviceLayerTests;
 
+import com.revature.exception.InvalidPasswordException;
 import com.revature.exception.KeyNotFoundException;
 import com.revature.exception.NoUserTargetedException;
 import com.revature.service.RetrievalLayer;
@@ -77,5 +78,29 @@ public class DataRetrievalTests {
 	@Test(expected = NoUserTargetedException.class)
 	public void invalidNameRetrievalTest() {
 		assertNotEquals(test_retrieval_instance.getName(), "This should never run");
+	}
+
+	// Correct Password Test
+	// Ensures that a log-in can only occur if the user enters a correct password
+	@Test
+	public void correctPasswordTest() {
+		test_retrieval_instance.secureTargetUser("testAccountName", "testPassword");
+		assertEquals("John Doe", test_retrieval_instance.getName());
+	}
+	
+	// Incorrect Password Handling Test
+	// Ensures that an incorrect log-in returns with an error message
+	
+	@Test (expected = InvalidPasswordException.class)
+	public void incorrectPasswordHandlerTest() {
+		test_retrieval_instance.secureTargetUser("testAccountName", "wrongPassword");
+	}
+	
+	// User Not Found Handling Test
+	// Ensures that an attempted log-in with a bad user returns with an error message
+	
+	@Test (expected = KeyNotFoundException.class)
+	public void userNotFoundHandlerTest() {
+		test_retrieval_instance.secureTargetUser("NotAnAccount", "passwordDoesntMatter");
 	}
 }

@@ -4,6 +4,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.revature.exception.DuplicateUserException;
+import com.revature.exception.InvalidPasswordException;
 import com.revature.exception.KeyNotFoundException;
 import com.revature.service.RetrievalLayer;
 
@@ -136,11 +137,19 @@ public class ConsoleController {
 			return;
 		}
 		
+		System.out.print("Please enter the password associated with this account: ");
+		String password_to_test = this.user_input_control.nextLine();
+		
 		try {
-		service_handler.targetUser(user_to_find);
+		service_handler.secureTargetUser(user_to_find, password_to_test);
 		}
 		catch (KeyNotFoundException e) {
 			System.out.println("This user is not in the database! Perhaps you meant to register this account?");
+			this.doLogIn();
+			return;
+		}
+		catch (InvalidPasswordException e) {
+			System.out.println("The password you entered is incorrect!");
 			this.doLogIn();
 			return;
 		}
@@ -186,6 +195,33 @@ public class ConsoleController {
 		
 		String validated_actual_name = actual_name.replaceAll("[^0-9a-zA-Z_ ]", "");
 		
+		System.out.print("Please enter your password. Type 'EXIT' to exit.\nNote: Illegal characters"
+				+ "will be stripped from your password: ");
+		
+		String first_password_entry;
+		first_password_entry = this.user_input_control.nextLine();
+		
+		if(first_password_entry.equals("EXIT")) {
+			return;
+		}
+		
+		System.out.print("Please enter your password again for confirmation: ");
+		String password_confirm = this.user_input_control.nextLine();
+		
+		if(!(password_confirm.equals(first_password_entry))){
+			System.out.print("Your passwords do not match! Please try again");
+			this.doCreateAccount();
+			return;
+		}
+		
+		String validated_password = password_confirm.replaceAll("[^0-9a-zA-Z_]", "");
+		
+		if(validated_password.length() != password_confirm.length()) {
+			System.out.println("Your password has invalid characters in it! Please try again");
+			this.doCreateAccount();
+			return;
+		}
+		
 		System.out.println("User name: " + validated_name);
 		System.out.println("Display name: " + validated_actual_name);
 		
@@ -199,7 +235,7 @@ public class ConsoleController {
 		}
 		
 		try {
-			this.service_handler.addUser(validated_name, validated_actual_name);
+			this.service_handler.addUser(validated_name, validated_actual_name, validated_password);
 		}
 		catch (DuplicateUserException e) {
 			System.out.println("There is already a user with that username!");

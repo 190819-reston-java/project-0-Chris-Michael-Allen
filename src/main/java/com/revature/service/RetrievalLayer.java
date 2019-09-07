@@ -10,6 +10,7 @@ import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
+import com.revature.exception.InvalidPasswordException;
 
 public class RetrievalLayer {
 
@@ -27,8 +28,8 @@ public class RetrievalLayer {
 
 		// Eventually, this will instantiate a database connection object
 		// For now, data is hard coded
-		this.addUser("testAccountName", "John Doe", "255.00");
-		this.addUser("testAccount2", "Jane Doe", "100.00");
+		this.addUser("testAccountName", "John Doe", "255.00", "testPassword");
+		this.addUser("testAccount2", "Jane Doe", "100.00", "testPassword2");
 	}
 
 	public void targetUser(String userKey) throws KeyNotFoundException {
@@ -84,7 +85,7 @@ public class RetrievalLayer {
 		this.user_funds = String.format("%.2f", Float.valueOf(user_funds));
 	}
 
-	public void addUser(String user_name, String actual_name, String funds)
+	public void addUser(String user_name, String actual_name, String funds, String password)
 			throws NumberFormatException, InitializedFundsBelowZeroException, FundsTooHighException,
 			DuplicateUserException {
 
@@ -98,16 +99,18 @@ public class RetrievalLayer {
 			throw new FundsTooHighException();
 		}
 
-		// Set the new user's key within the table to be
-		// The size of the map
+		
 		if(this.user_data.containsKey(user_name)) {
 			throw new DuplicateUserException();
 		}
-		this.user_data.put(user_name, Arrays.asList(user_name, actual_name, funds));
+		
+		password = hashPassword(password);
+		
+		this.user_data.put(user_name, Arrays.asList(user_name, actual_name, funds, password));
 	}
 
-	public void addUser(String user_name, String actual_name) {
-		this.addUser(user_name, actual_name, "0.00");
+	public void addUser(String user_name, String actual_name, String password) {
+		this.addUser(user_name, actual_name, "0.00", password);
 	}
 
 	public void addFunds(float increment_amount) throws NoUserTargetedException {
@@ -170,5 +173,40 @@ public class RetrievalLayer {
 	public void withdrawFunds(int i) {
 		this.withdrawFunds((float) i);
 		
+	}
+	
+	private String hashPassword(String unsalted_password) {
+		String salt = "nlSKJrhao3u4YO%*&Q";
+		String pepper = "gy0689bw7ftavb-fga8435";
+		
+		String seasoned_password = salt + unsalted_password + pepper;
+		
+		String safe_password = hashingFunction(seasoned_password);
+		
+		return safe_password;
+	}
+	
+	private String hashingFunction(String seasoned_password) {
+		int hash = 3089;
+		
+		
+		for(char password_char : seasoned_password.toCharArray()) {
+			hash = hash * 31 + Character.getNumericValue(password_char);
+		}
+		
+		return String.valueOf(hash);
+	}
+	
+	public void secureTargetUser(String user_name, String password_attempt) 
+	throws InvalidPasswordException, KeyNotFoundException {
+		
+		if(!(this.user_data.containsKey(user_name))) {
+			throw new KeyNotFoundException();
+		}
+		if(!(hashPassword(password_attempt).equals(this.user_data.get(user_name).get(3)))){
+			throw new InvalidPasswordException();
+		}
+		
+		this.targetUser(user_name);
 	}
 }
