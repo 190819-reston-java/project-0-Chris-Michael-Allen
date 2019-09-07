@@ -10,6 +10,7 @@ import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InitializedFundsBelowZeroException;
+import com.revature.exception.NoNegativeInputException;
 import com.revature.exception.NoUserTargetedException;
 import com.revature.service.RetrievalLayer;
 
@@ -121,5 +122,23 @@ public class DataSubmissionTests {
 	public void noOverdrawAllowedTest() {
 		test_retrieval_instance.targetUser("testAccountName");
 		test_retrieval_instance.withdrawFunds(1000);
+	}
+	
+	// No Deposit through Withdrawal Test
+	// Should ensure that entering a negative number will result in an error message
+	
+	@Test(expected = NoNegativeInputException.class)
+	public void noDepositThroughWithdrawalTest() {
+		test_retrieval_instance.targetUser("testAccountName");
+		test_retrieval_instance.withdrawFunds(-550);
+	}
+	
+	// No Withdrawal through Deposit Test
+	// Should ensure that entering a negative number will result in an error message
+	
+	@Test(expected = NoNegativeInputException.class)
+	public void noWithdrawalThroughDepositTest() {
+		test_retrieval_instance.targetUser("testAccountName");
+		test_retrieval_instance.addFunds("-9999999999");
 	}
 }

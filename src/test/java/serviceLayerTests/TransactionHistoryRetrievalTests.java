@@ -1,13 +1,5 @@
 package serviceLayerTests;
 
-import static org.junit.Assert.*;
-
-import java.util.Arrays;
-
-import org.junit.Test;
-
-import com.revature.service.RetrievalLayer;
-
 public class TransactionHistoryRetrievalTests {
 
 	// These tests should, similar to the data retrieval tests, retrieve information

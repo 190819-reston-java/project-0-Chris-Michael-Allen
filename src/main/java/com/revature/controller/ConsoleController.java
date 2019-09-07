@@ -1,11 +1,13 @@
 package com.revature.controller;
 
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
+import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
+import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InvalidPasswordException;
 import com.revature.exception.KeyNotFoundException;
+import com.revature.exception.NoNegativeInputException;
 import com.revature.service.RetrievalLayer;
 
 public class ConsoleController {
@@ -44,8 +46,6 @@ public class ConsoleController {
 	private boolean loop_execution = true;
 	
 	private String display_name;
-	private String user_retrieval_key;
-	
 	public ConsoleController() {
 		this.runMainMenu();
 	}
@@ -65,7 +65,6 @@ public class ConsoleController {
 		while(this.loop_execution);
 	}
 	
-
 	private void selectMenuFunction(int menu_case) {
 		switch (menu_case) {
 		case 0:
@@ -122,11 +121,42 @@ public class ConsoleController {
 	}
 
 	private void doWithdrawFunds() {
+		this.doViewAccountBalance();
+		System.out.print("How much money would you like to withdraw? Type 'EXIT' to exit: ");
+		String withdrawal_amount = this.user_input_control.nextLine();
+		
+		if (withdrawal_amount.equals("EXIT")) {
+			return;
+		}
+		
+		try{
+			this.service_handler.withdrawFunds(withdrawal_amount);
+		}
+		catch (NumberFormatException e) {
+			System.out.println("Error! You must enter a number!");
+			this.doWithdrawFunds();
+			return;
+		}
+		catch (AccountOverdrawnException e) {
+			System.out.println("You can not withdraw more money than is in your account!");
+			this.doWithdrawFunds();
+			return;
+		}
+		catch (NoNegativeInputException e) {
+			System.out.println("Can not make withdrawals with negative numbers!");
+			this.doWithdrawFunds();
+			return;
+		}
+		catch (FundsTooHighException e) {
+			System.out.println("Your withdrawal has caused your account to overflow! Please do not enter this amount!");
+			this.doWithdrawFunds();
+			return;
+		}
 	}
 
 	private void doViewAccountBalance() {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Your current funds are: $" + this.service_handler.getFunds());
+		return;
 	}
 
 	private void doLogIn() {
@@ -160,8 +190,41 @@ public class ConsoleController {
 	}
 
 	private void doDepositFunds() {
-		// TODO Auto-generated method stub
 		
+		this.doViewAccountBalance();
+		System.out.print("Note: can not have more than $1000000 in your account.\n"
+						+ "How much money would you like to deposit?\n"
+						+ "Type 'EXIT' to exit: ");
+		
+		String deposit_amount = this.user_input_control.nextLine();
+		
+		if(deposit_amount.equals("EXIT")) {
+			return;
+		}
+		
+		try {
+			this.service_handler.addFunds(deposit_amount);
+		}
+		catch (FundsTooHighException e) {
+			System.out.println("Your deposit causes your account to exceed $1000000! Please deposit less");
+			this.doDepositFunds();
+			return;
+		}
+		catch (NoNegativeInputException e) {
+			System.out.println("Can not add funds with a negative number! Perhaps you meant to withdraw?");
+			this.doDepositFunds();
+			return;
+		}
+		catch (AccountOverdrawnException e) {
+			System.out.println("Your deposit attempt has caused your account to underflow! Do not enter this amount!");
+			this.doDepositFunds();
+			return;
+		}
+		catch (NumberFormatException e) {
+			System.out.println("You must enter a valid number!");
+			this.doDepositFunds();
+			return;
+		}
 	}
 
 	private void doCreateAccount() {
@@ -253,16 +316,11 @@ public class ConsoleController {
 		return this.display_name;
 	}
 	
-	private String getRetrievalKey() {
-		return this.user_retrieval_key;
-	}
-	
 	private void setDisplayName(String display_name) {
 		this.display_name = display_name;
 	}
 	
 	private void setRetrievalKey(String retrieval_key) {
-		this.user_retrieval_key = retrieval_key;
 	}
 
 	private int menuSelection(String[][] menu_to_show) {

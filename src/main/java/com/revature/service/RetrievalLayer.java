@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.revature.exception.KeyNotFoundException;
+import com.revature.exception.NoNegativeInputException;
 import com.revature.exception.NoUserTargetedException;
 import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
@@ -113,13 +114,26 @@ public class RetrievalLayer {
 		this.addUser(user_name, actual_name, "0.00", password);
 	}
 
-	public void addFunds(float increment_amount) throws NoUserTargetedException {
+	public void addFunds(float increment_amount) throws NoUserTargetedException,
+				NoNegativeInputException, FundsTooHighException, AccountOverdrawnException {
 
 		if (!this.targeting_user) {
 			throw new NoUserTargetedException();
 		}
 
+		if(increment_amount < 0) {
+			throw new NoNegativeInputException();
+		}
+		
 		float new_value = increment_amount + Float.valueOf(this.getFunds());
+		
+		if(new_value < 0) {
+			throw new AccountOverdrawnException();
+		}
+		
+		if(new_value > 1000000) {
+			throw new FundsTooHighException();
+		}
 
 		this.setFunds(new_value);
 
@@ -149,15 +163,24 @@ public class RetrievalLayer {
 	}
 
 	public void withdrawFunds(float withdraw_amount) 
-	throws NoUserTargetedException, AccountOverdrawnException {
+	throws NoUserTargetedException, AccountOverdrawnException,
+		   NoNegativeInputException, FundsTooHighException {
 		
 		if(!this.targeting_user) {
 			throw new NoUserTargetedException();
 		}
 		
+		if(withdraw_amount < 0) {
+			throw new NoNegativeInputException();
+		}
+		
 		float new_amount = Float.valueOf(this.getFunds()) - withdraw_amount;
 		if (new_amount < 0) {
 			throw new AccountOverdrawnException();
+		}
+		
+		if (new_amount > 1000000) {
+			throw new FundsTooHighException();
 		}
 		
 		this.setFunds(new_amount);
@@ -173,6 +196,10 @@ public class RetrievalLayer {
 	public void withdrawFunds(int i) {
 		this.withdrawFunds((float) i);
 		
+	}
+	
+	public void withdrawFunds(String s) {
+		this.withdrawFunds(Float.valueOf(s));
 	}
 	
 	private String hashPassword(String unsalted_password) {
@@ -208,5 +235,12 @@ public class RetrievalLayer {
 		}
 		
 		this.targetUser(user_name);
+	}
+
+	
+	
+	public void addFunds(String string) {
+		this.addFunds(Float.valueOf(string));
+		
 	}
 }
