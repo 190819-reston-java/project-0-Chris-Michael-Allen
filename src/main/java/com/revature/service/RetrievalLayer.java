@@ -20,9 +20,14 @@ public class RetrievalLayer {
 	private String user_funds = null;
 	private HashMap<String, List<String>> user_data = new HashMap<String, List<String>>();
 	private boolean targeting_user = false;
+	private static RetrievalLayer retrieval_instance = new RetrievalLayer();
 
-	public RetrievalLayer() {
+	private RetrievalLayer() {
 		this.retrieveFromDatabase();
+	}
+	
+	public static RetrievalLayer getRetrievalLayer() {
+		return retrieval_instance;
 	}
 
 	private void retrieveFromDatabase() {
@@ -31,6 +36,7 @@ public class RetrievalLayer {
 		// For now, data is hard coded
 		this.addUser("testAccountName", "John Doe", "255.00", "testPassword");
 		this.addUser("testAccount2", "Jane Doe", "100.00", "testPassword2");
+		this.addUser("testAccount3", "Uncle Pennybags", "312.22", "bigBusiness");
 	}
 
 	public void targetUser(String userKey) throws KeyNotFoundException {
@@ -137,7 +143,7 @@ public class RetrievalLayer {
 
 		this.setFunds(new_value);
 
-		List<String> update_data = Arrays.asList(this.getName(), this.getFunds());
+		List<String> update_data = Arrays.asList(this.getUserName(), this.getName(), this.getFunds(), this.user_data.get(user_name).get(3));
 		this.user_data.replace(this.user_name, update_data);
 
 	}
@@ -184,7 +190,7 @@ public class RetrievalLayer {
 		}
 		
 		this.setFunds(new_amount);
-		List<String> update_array = Arrays.asList(this.getName(), this.getFunds());
+		List<String> update_array = Arrays.asList(this.getUserName(), this.getName(), this.getFunds(), this.user_data.get(this.getUserName()).get(3));
 		this.user_data.replace(this.user_name, update_array);
 	}
 	

@@ -17,12 +17,12 @@ public class DataRetrievalTests {
 	
 	@Before
 	public void setUp() {
-		test_retrieval_instance = new RetrievalLayer();
+		test_retrieval_instance = RetrievalLayer.getRetrievalLayer();
 	}
 	
 	@After
 	public void tearDown() {
-		test_retrieval_instance = null;
+		test_retrieval_instance.logOut();
 	}
 
 	// These tests should validate that data retrieved from the database

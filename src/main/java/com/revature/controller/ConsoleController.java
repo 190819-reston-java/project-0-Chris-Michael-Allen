@@ -12,7 +12,7 @@ import com.revature.service.RetrievalLayer;
 
 public class ConsoleController {
 
-	private RetrievalLayer service_handler = new RetrievalLayer();
+	private RetrievalLayer service_handler = RetrievalLayer.getRetrievalLayer();
 
 	private String menu_header = 
 			  "*******************************************************\n"

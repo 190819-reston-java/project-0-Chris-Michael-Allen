@@ -23,12 +23,12 @@ public class DataSubmissionTests {
 	
 	@Before
 	public void setUp() {
-		test_retrieval_instance = new RetrievalLayer();
+		test_retrieval_instance = RetrievalLayer.getRetrievalLayer();
 	}
 	
 	@After
 	public void tearDown() {
-		test_retrieval_instance = null;
+		test_retrieval_instance.logOut();
 	}
 
 	// Valid User Test
@@ -104,9 +104,9 @@ public class DataSubmissionTests {
 	
 	@Test
 	public void withdrawalFunctionalityTest() {
-		test_retrieval_instance.targetUser("testAccountName");
+		test_retrieval_instance.targetUser("testAccount3");
 		test_retrieval_instance.withdrawFunds(255);
-		assertEquals(test_retrieval_instance.getFunds(), "0.00");
+		assertEquals(test_retrieval_instance.getFunds(), "57.22");
 	}
 	
 	// Valid Withdrawal Request Test
