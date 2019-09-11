@@ -7,6 +7,7 @@ import java.util.List;
 import com.revature.exception.KeyNotFoundException;
 import com.revature.exception.NoNegativeInputException;
 import com.revature.exception.NoUserTargetedException;
+import com.revature.repository.DatabaseBridge;
 import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
@@ -21,7 +22,8 @@ public class RetrievalLayer {
 	private HashMap<String, List<String>> user_data = new HashMap<String, List<String>>();
 	private boolean targeting_user = false;
 	private static RetrievalLayer retrieval_instance = new RetrievalLayer();
-
+	private DatabaseBridge database_bridge_instance = new DatabaseBridge();
+	
 	private RetrievalLayer() {
 		this.retrieveFromDatabase();
 	}
@@ -39,6 +41,10 @@ public class RetrievalLayer {
 		this.addUser("testAccount3", "Uncle Pennybags", "312.22", "bigBusiness");
 	}
 
+	public HashMap<String, List<String>> getUserData(){
+		return this.user_data;
+	}
+	
 	public void targetUser(String userKey) throws KeyNotFoundException {
 		if (!this.user_data.containsKey(userKey)) {
 			throw new KeyNotFoundException();
@@ -248,5 +254,9 @@ public class RetrievalLayer {
 	public void addFunds(String string) {
 		this.addFunds(Float.valueOf(string));
 		
+	}
+	
+	public void saveToDatabase() {
+			this.database_bridge_instance.sendToUserDatabase(this.getUserData());
 	}
 }
