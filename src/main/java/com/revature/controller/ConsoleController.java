@@ -1,6 +1,8 @@
 package com.revature.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.revature.exception.AccountOverdrawnException;
@@ -82,6 +84,7 @@ public class ConsoleController {
 			break;
 		case 3:
 			System.out.println("View transaction history!");
+			doShowTransactionHistory();
 			break;
 		case 4:
 			System.out.println("Save to database!");
@@ -323,6 +326,31 @@ public class ConsoleController {
 	
 	private String getDisplayName() {
 		return this.display_name;
+	}
+	
+	private void doShowTransactionHistory() {
+		List<List<String>> transaction_history_to_handle = new ArrayList<List<String>>();
+		transaction_history_to_handle = this.service_handler.getTargetTransactionHistory();
+		System.out.println("Display Transaction History.\nNote: Recent transactions will only "
+						 + "display if you have saved to the database!");
+		
+		
+		if(transaction_history_to_handle.size() == 0) {
+			System.out.println("There is no transaction history to display!");
+			return;
+		}
+		System.out.println("Transaction history for: " + this.getDisplayName());
+		System.out.println("Old Amount\tAction Performed\tNew Amount\tTime Performed");
+		System.out.println("==========\t================\t==========\t==============");
+		
+		for(List<String> data_entry : transaction_history_to_handle) {
+			String display_string;
+			display_string = (data_entry.get(0) + "\t"
+							+ data_entry.get(1) + "\t"
+							+ data_entry.get(2) + "\t"
+							+ data_entry.get(3));
+			System.out.println(display_string);
+		}
 	}
 	
 	private void setDisplayName(String display_name) {
