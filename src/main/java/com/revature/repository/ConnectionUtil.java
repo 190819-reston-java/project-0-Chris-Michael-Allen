@@ -14,7 +14,7 @@ public class ConnectionUtil {
 		try {
 			Properties props = new Properties();
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			props.load(loader.getResourceAsStream("connections.properties"));
+			props.load(loader.getResourceAsStream("connection.properties"));
 			
 			String url = props.getProperty("url");
 			String username = props.getProperty("username");
@@ -28,7 +28,7 @@ public class ConnectionUtil {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+		System.out.println("==CONNECTED==");
 		return conn;
 	}
 	

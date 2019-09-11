@@ -24,6 +24,7 @@ public class DataSubmissionTests {
 	@Before
 	public void setUp() {
 		test_retrieval_instance = RetrievalLayer.getRetrievalLayer();
+		test_retrieval_instance.setUpTestDatabase();
 	}
 	
 	@After
