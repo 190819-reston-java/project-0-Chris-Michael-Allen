@@ -1,5 +1,6 @@
 package com.revature.controller;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import com.revature.exception.AccountOverdrawnException;
@@ -84,6 +85,7 @@ public class ConsoleController {
 			break;
 		case 4:
 			System.out.println("Save to database!");
+			doSaveToDatabase();
 			break;
 		case 5:
 			System.out.println("Log out!");
@@ -99,9 +101,16 @@ public class ConsoleController {
 			break;
 		case 8:
 			System.out.println("Save and exit!");
+			doSaveToDatabase();
 			this.loop_execution = false;
 			break;
 		}
+		
+	}
+
+	private void doSaveToDatabase() {
+		
+		this.service_handler.saveToDatabase();
 		
 	}
 
@@ -336,8 +345,9 @@ public class ConsoleController {
 		System.out.print("**** ");
 		System.out.print("Please enter your choice: ");
 		
-		
 		user_selection = this.user_input_control.nextLine();
+		//System.out.print("\033[H\033[2J");
+		
 		try {
 			converted_user_selection = Integer.valueOf(user_selection);
 		}

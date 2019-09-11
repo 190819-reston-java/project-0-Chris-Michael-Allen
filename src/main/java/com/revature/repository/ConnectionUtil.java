@@ -28,7 +28,6 @@ public class ConnectionUtil {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("==CONNECTED==");
 		return conn;
 	}
 	

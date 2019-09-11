@@ -27,7 +27,7 @@ public class RetrievalLayer {
 	private boolean is_testing = false;
 	
 	private RetrievalLayer() {
-		this.setUpTestDatabase();
+		this.user_data = database_bridge_instance.retrieveFromDatabase();
 	}
 	
 	public static RetrievalLayer getRetrievalLayer() {
