@@ -71,7 +71,7 @@ public class DatabaseBridge {
 				+ "FROM transaction_history "
 				+ "WHERE reference_user = 'user_key' "
 				+ "ORDER BY transaction_time DESC;";
-				retrieval_query.replaceAll("user_key", user_key);
+				retrieval_query = retrieval_query.replaceAll("user_key", user_key);
 		
 				try {
 					conn = ConnectionUtil.getConnection();

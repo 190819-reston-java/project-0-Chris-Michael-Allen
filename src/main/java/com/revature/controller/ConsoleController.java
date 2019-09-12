@@ -42,8 +42,7 @@ public class ConsoleController {
 			{ "2. Log in to account", "7" },
 			{ "3. Save and exit", "8" }
 			};
-	
-	private int space_upper_bound = 2;
+
 
 	private Scanner user_input_control = new Scanner(System.in);
 	private boolean loop_execution = true;
@@ -71,39 +70,30 @@ public class ConsoleController {
 	private void selectMenuFunction(int menu_case) {
 		switch (menu_case) {
 		case 0:
-			System.out.println("View account balance!");
 			doViewAccountBalance();
 			break;
 		case 1:
-			System.out.println("Deposit funds!");
 			doDepositFunds();
 			break;
 		case 2:
-			System.out.println("Withdraw funds!");
 			doWithdrawFunds();
 			break;
 		case 3:
-			System.out.println("View transaction history!");
 			doShowTransactionHistory();
 			break;
 		case 4:
-			System.out.println("Save to database!");
 			doSaveToDatabase();
 			break;
 		case 5:
-			System.out.println("Log out!");
 			doLogOut();
 			break;
 		case 6:
-			System.out.println("Create account!");
 			doCreateAccount();
 			break;
 		case 7:
-			System.out.println("Log in!");
 			doLogIn();
 			break;
 		case 8:
-			System.out.println("Save and exit!");
 			doSaveToDatabase();
 			this.loop_execution = false;
 			break;
@@ -129,7 +119,6 @@ public class ConsoleController {
 		
 		this.service_handler.logOut();
 		this.setDisplayName("");
-		this.setRetrievalKey("");
 	}
 
 	private void doWithdrawFunds() {
@@ -167,7 +156,7 @@ public class ConsoleController {
 	}
 
 	private void doViewAccountBalance() {
-		System.out.println("Your current funds are: $" + this.service_handler.getFunds());
+		System.out.println(getDisplayName() + ": Your current funds are: $" + this.service_handler.getFunds());
 		return;
 	}
 
@@ -197,7 +186,6 @@ public class ConsoleController {
 		}
 		
 		this.setDisplayName(service_handler.getName());
-		this.setRetrievalKey(service_handler.getUserName());
 		return;
 	}
 
@@ -319,7 +307,6 @@ public class ConsoleController {
 		
 		this.service_handler.targetUser(validated_name);
 		this.setDisplayName(service_handler.getName());
-		this.setRetrievalKey(service_handler.getUserName());
 		return;
 		
 	}
@@ -345,10 +332,10 @@ public class ConsoleController {
 		
 		for(List<String> data_entry : transaction_history_to_handle) {
 			String display_string;
-			display_string = (data_entry.get(0) + "\t"
-							+ data_entry.get(1) + "\t"
-							+ data_entry.get(2) + "\t"
-							+ data_entry.get(3));
+			display_string = (String.format("%10s", data_entry.get(0)) + "\t"
+							+ String.format("%16s", data_entry.get(1)) + "\t"
+							+ String.format("%10s", data_entry.get(2)) + "\t"
+							+ String.format("%14s", data_entry.get(3)));
 			System.out.println(display_string);
 		}
 	}
@@ -356,21 +343,20 @@ public class ConsoleController {
 	private void setDisplayName(String display_name) {
 		this.display_name = display_name;
 	}
-	
-	private void setRetrievalKey(String retrieval_key) {
-	}
 
 	private int menuSelection(String[][] menu_to_show) {
 
 		String user_selection;
 		int converted_user_selection;
+		
+		if(menu_to_show.length == 6) {
+			System.out.println("Welcome, " + getDisplayName());
+		}
 
 		for (String[] menu_choice : menu_to_show) {
-			System.out.print("**** ");
 			System.out.println(menu_choice[0]);
 		}
 		
-		System.out.print("**** ");
 		System.out.print("Please enter your choice: ");
 		
 		user_selection = this.user_input_control.nextLine();
@@ -380,13 +366,11 @@ public class ConsoleController {
 			converted_user_selection = Integer.valueOf(user_selection);
 		}
 		catch (NumberFormatException e){
-			System.out.print("**** ");
 			System.out.println("Invalid menu option! Please enter a number");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
 		}
 		if ((converted_user_selection <= 0) || (converted_user_selection > menu_to_show.length)){
-			System.out.print("**** ");
 			System.out.println("Invalid menu option! Please choose a valid option");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
@@ -398,10 +382,6 @@ public class ConsoleController {
 			System.out.println("Invalid menu option! Please choose a valid option");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
-		}
-		
-		for(int create_space = 0; create_space < this.space_upper_bound; create_space++) {
-			System.out.println("***********************************");
 		}
 		
 		return converted_user_selection;

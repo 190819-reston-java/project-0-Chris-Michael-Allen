@@ -300,6 +300,10 @@ public class RetrievalLayer {
 			throw new DatabaseProtectionFromTestDataException();
 		}
 		this.database_bridge_instance.sendToUserDatabase(this.getUserData());
+		
+		if(this.targeting_user) {
+			this.setTargetTransactionHistory();
+		}
 	}
 
 }
