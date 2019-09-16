@@ -5,15 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.log4j.Logger;
+
 import com.revature.exception.AccountOverdrawnException;
 import com.revature.exception.DuplicateUserException;
 import com.revature.exception.FundsTooHighException;
 import com.revature.exception.InvalidPasswordException;
 import com.revature.exception.KeyNotFoundException;
 import com.revature.exception.NoNegativeInputException;
+import com.revature.repository.DatabaseBridge;
 import com.revature.service.RetrievalLayer;
 
 public class ConsoleController {
+	
+	static final Logger logger = Logger.getLogger(ConsoleController.class);
 
 	private RetrievalLayer service_handler = RetrievalLayer.getRetrievalLayer();
 
@@ -49,13 +54,16 @@ public class ConsoleController {
 	
 	private String display_name;
 	public ConsoleController() {
+		logger.info("Console controller initialized. Now running the menu");
 		this.runMainMenu();
 	}
 
 	private void runMainMenu() {
 		System.out.println(this.menu_header);
 
+		logger.info("Beginning execution loop");
 		do {
+			logger.info("Determining which menu to display based on logged in status");
 			int menu_case = service_handler.getLoggedInStatus() ? 
 					menuSelection(this.logged_in_menu) : menuSelection(this.logged_out_menu);
 		
@@ -70,30 +78,39 @@ public class ConsoleController {
 	private void selectMenuFunction(int menu_case) {
 		switch (menu_case) {
 		case 0:
+			logger.info("User decided to view account balance");
 			doViewAccountBalance();
 			break;
 		case 1:
+			logger.info("User decided to deposit funds");
 			doDepositFunds();
 			break;
 		case 2:
+			logger.info("User decided to withdraw funds");
 			doWithdrawFunds();
 			break;
 		case 3:
+			logger.info("User decided to view transaction history");
 			doShowTransactionHistory();
 			break;
 		case 4:
+			logger.info("User decided to save to the database");
 			doSaveToDatabase();
 			break;
 		case 5:
+			logger.info("User decided to log out");
 			doLogOut();
 			break;
 		case 6:
+			logger.info("User decided to create an account");
 			doCreateAccount();
 			break;
 		case 7:
+			logger.info("User decided to log in");
 			doLogIn();
 			break;
 		case 8:
+			logger.info("User decided to save and exit - setting loop condition to false and saving to database");
 			doSaveToDatabase();
 			this.loop_execution = false;
 			break;
@@ -103,7 +120,9 @@ public class ConsoleController {
 
 	private void doSaveToDatabase() {
 		
+		logger.info("Calling on the service layer to execute a database save");
 		this.service_handler.saveToDatabase();
+		logger.info("Database save performed successfully");
 		
 	}
 
@@ -114,11 +133,13 @@ public class ConsoleController {
 		String user_input = this.user_input_control.nextLine();
 		
 		if(!user_input.equals("EXIT")) {
+			logger.info("User decided not to log out");
 			return;
 		}
-		
+
+		logger.info("Calling on the service layer to execute log out functionality");
 		this.service_handler.logOut();
-		this.setDisplayName("");
+		this.setDisplayName("Log out functionality performed successfully");
 	}
 
 	private void doWithdrawFunds() {
@@ -127,14 +148,17 @@ public class ConsoleController {
 		String withdrawal_amount = this.user_input_control.nextLine();
 		
 		if (withdrawal_amount.equals("EXIT")) {
+			logger.info("User decided not to withdraw funds");
 			return;
 		}
 		
 		try{
+			logger.info("Calling on the service layer to withdraw the funds");
 			this.service_handler.withdrawFunds(withdrawal_amount);
 		}
 		catch (NumberFormatException e) {
 			System.out.println("Error! You must enter a number!");
+			logger.debug("User attempted to enter something other than a number");
 			this.doWithdrawFunds();
 			return;
 		}
@@ -165,6 +189,7 @@ public class ConsoleController {
 		String user_to_find = this.user_input_control.nextLine();
 		
 		if(user_to_find.equals("EXIT")) {
+			logger.info("User decided not to log in to an account");
 			return;
 		}
 		
@@ -172,6 +197,7 @@ public class ConsoleController {
 		String password_to_test = this.user_input_control.nextLine();
 		
 		try {
+		logger.info("Calling on service layer to handle a log-in attempt");
 		service_handler.secureTargetUser(user_to_find, password_to_test);
 		}
 		catch (KeyNotFoundException e) {
@@ -185,6 +211,7 @@ public class ConsoleController {
 			return;
 		}
 		
+		logger.info("Log in performed successfully");
 		this.setDisplayName(service_handler.getName());
 		return;
 	}
@@ -199,10 +226,12 @@ public class ConsoleController {
 		String deposit_amount = this.user_input_control.nextLine();
 		
 		if(deposit_amount.equals("EXIT")) {
+			logger.info("User decided not to deposit funds");
 			return;
 		}
 		
 		try {
+			logger.info("Calling on service layer to add funds to an account");
 			this.service_handler.addFunds(deposit_amount);
 		}
 		catch (FundsTooHighException e) {
@@ -221,6 +250,7 @@ public class ConsoleController {
 			return;
 		}
 		catch (NumberFormatException e) {
+			logger.debug("User entered an invalid input (i.e. not a number)");
 			System.out.println("You must enter a valid number!");
 			this.doDepositFunds();
 			return;
@@ -238,11 +268,13 @@ public class ConsoleController {
 		String new_name = this.user_input_control.nextLine();
 		
 		if(new_name.equals("EXIT")) {
+			logger.debug("User decided not to create an account");
 			return;
 		}
 		
 		String validated_name = new_name.replaceAll("[^0-9a-zA-Z_]", "");
 		if (new_name.length() != validated_name.length()) {
+			logger.debug("User input invalid characters into their username");
 			System.out.println("Invalid name! Please try again");
 			this.doCreateAccount();
 			return;
@@ -253,6 +285,7 @@ public class ConsoleController {
 		String actual_name = this.user_input_control.nextLine();
 		
 		if(actual_name.equals("EXIT")) {
+			logger.info("User decided to exit account creation when entering a name");
 			return;
 		}
 		
@@ -265,6 +298,7 @@ public class ConsoleController {
 		first_password_entry = this.user_input_control.nextLine();
 		
 		if(first_password_entry.equals("EXIT")) {
+			logger.info("User decided to exit account creation when entering a password");
 			return;
 		}
 		
@@ -272,6 +306,7 @@ public class ConsoleController {
 		String password_confirm = this.user_input_control.nextLine();
 		
 		if(!(password_confirm.equals(first_password_entry))){
+			logger.debug("The user's failed to enter the same password twice");
 			System.out.print("Your passwords do not match! Please try again");
 			this.doCreateAccount();
 			return;
@@ -281,6 +316,7 @@ public class ConsoleController {
 		
 		if(validated_password.length() != password_confirm.length()) {
 			System.out.println("Your password has invalid characters in it! Please try again");
+			logger.debug("User attempted to enter illegal characters in their username");
 			this.doCreateAccount();
 			return;
 		}
@@ -294,17 +330,21 @@ public class ConsoleController {
 		String final_confirm = this.user_input_control.nextLine();
 		
 		if(final_confirm.equals("EXIT")) {
+			logger.info("User decided to exit account creation after reviewing data");
 			return;
 		}
 		
 		try {
+			logger.info("Calling on service layer to add the user to the HashMap database");
 			this.service_handler.addUser(validated_name, validated_actual_name, validated_password);
 		}
 		catch (DuplicateUserException e) {
 			System.out.println("There is already a user with that username!");
 			return;
 		}
+		logger.info("User added successfully");
 		
+		logger.info("Calling on service layer to target the newly created user");
 		this.service_handler.targetUser(validated_name);
 		this.setDisplayName(service_handler.getName());
 		return;
@@ -317,7 +357,11 @@ public class ConsoleController {
 	
 	private void doShowTransactionHistory() {
 		List<List<String>> transaction_history_to_handle = new ArrayList<List<String>>();
+		
+		logger.info("Calling on service layer to retrieve the user's transaction history");
 		transaction_history_to_handle = this.service_handler.getTargetTransactionHistory();
+		logger.info("Retrieval successful. Proceeding to display transaction history");
+		
 		System.out.println("Display Transaction History.\nNote: Recent transactions will only "
 						 + "display if you have saved to the database!");
 		
@@ -350,6 +394,7 @@ public class ConsoleController {
 		int converted_user_selection;
 		
 		if(menu_to_show.length == 6) {
+			logger.info("The menu was determined to be the logged-in menu");
 			System.out.println("Welcome, " + getDisplayName());
 		}
 
@@ -360,17 +405,18 @@ public class ConsoleController {
 		System.out.print("Please enter your choice: ");
 		
 		user_selection = this.user_input_control.nextLine();
-		//System.out.print("\033[H\033[2J");
 		
 		try {
 			converted_user_selection = Integer.valueOf(user_selection);
 		}
 		catch (NumberFormatException e){
+			logger.debug("User did not input an actual number. Redisplaying the menu");
 			System.out.println("Invalid menu option! Please enter a number");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
 		}
 		if ((converted_user_selection <= 0) || (converted_user_selection > menu_to_show.length)){
+			logger.debug("User attempted to input a number outside the displayed menu's range. Redisplaying the menu");
 			System.out.println("Invalid menu option! Please choose a valid option");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
@@ -379,6 +425,7 @@ public class ConsoleController {
 		converted_user_selection = Integer.valueOf(menu_to_show[converted_user_selection - 1][1]);
 		
 		if (converted_user_selection < 0) {
+			logger.debug("User somehow tricked the menu into retrieving a negative number");
 			System.out.println("Invalid menu option! Please choose a valid option");
 			converted_user_selection = this.menuSelection(menu_to_show);
 			return converted_user_selection;
